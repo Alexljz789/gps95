@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=GPS95
+Name[zh_CN]=GPS95 卫星导航
+Comment=Windows 95 styled GPS/GNSS navigator with offline map cache
+Comment[zh_CN]=Windows 95 风格 GPS/GNSS 导航仪，支持离线地图缓存
+Exec=/usr/local/bin/gps95-ui
+Icon=/opt/gps95/app/static/img/gps95.png
+Terminal=false
+Categories=Utility;Science;Maps;
+StartupNotify=false

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN" translate="no">
+<head>
+<meta charset="utf-8">
+<meta name="google" content="notranslate">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#008080">
+<title>GPS95 — 卫星导航</title>
+<link rel="stylesheet" href="/static/vendor/98css/98.css">
+<link rel="stylesheet" href="/static/vendor/leaflet/leaflet.css">
+<link rel="stylesheet" href="/static/css/app.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-sat" viewBox="0 0 16 16">
+      <path fill="#000" d="M2 1h2v1h1v1h1V2h1V1h2v1H8v1H7v1h2v2H8v1H7v1h2v2h2v1h1v1h1v1h-2v-1H9v-1H7v-1H6v-1H5v-1H4v-1H3V8H2V7H1V5h1V4h1V3H2z"/>
+      <path fill="#fff" d="M3 2h1v1H3zM4 3h1v1H4zM5 4h1v1H5zM6 5h1v1H6z"/>
+      <path fill="#000" d="M11 0h2v2h-2zM12 2h1v1h-1zM13 3h1v1h-1z"/>
+    </symbol>
+    <symbol id="i-map" viewBox="0 0 16 16">
+      <path fill="#000" d="M1 2l4-1 3 1 4-1 3 1v12l-4 1-3-1-3 1-4-1z"/>
+      <path fill="#fff" d="M2 3l3-1v10l-3 1zM10 2l3-1v10l-3 1zM6 2l3 1v10l-3-1z"/>
+      <path fill="#008000" d="M3 5h2v2H3zM7 7h1v1H7zM11 4h1v1h-1zM12 8h1v1h-1z"/>
+    </symbol>
+    <symbol id="i-gear" viewBox="0 0 16 16">
+      <path fill="#000" d="M6 0h4v2h2v1h1v2h2v4h-2v2h-1v1h-2v2H6v-2H4v-1H3V9H1V5h2V3h1V2h2z"/>
+      <path fill="#fff" d="M6 1h4v2h2v2h1v2h-1v2h-2v2H6V9H4V7H3V5h1V3h2z"/>
+      <path fill="#000" d="M6 5h4v2H6zM6 7h2v2H6zM8 6h2v3H8z"/>
+    </symbol>
+    <symbol id="i-wrench" viewBox="0 0 16 16">
+      <path fill="#000" d="M9 1h3v1h1v3h-1v1h-1v1H9V6H8v1H7v1H6v1H5v1H4v1H3v1H1v-2h1v-1h1v-1h1V8h1V7h1V6h1V5h1V4h1z"/>
+      <path fill="#fff" d="M10 2h2v2h-1v1h-1V4H9V3h1zM2 12h1v1H2z"/>
+    </symbol>
+    <symbol id="i-cache" viewBox="0 0 16 16">
+      <path fill="#000" d="M2 2h12v3H2zM2 6h12v3H2zM2 10h12v3H2z"/>
+      <path fill="#fff" d="M3 3h10v1H3zM3 7h10v1H3zM3 11h10v1H3z"/>
+      <path fill="#000080" d="M4 4h2v1H4zM4 8h4v1H4zM4 12h6v1H4z"/>
+    </symbol>
+    <symbol id="i-pin" viewBox="0 0 16 16">
+      <path fill="#000" d="M7 1h2v1h2v2h1v2h-1v2h-1v1h-1v1H8v4H7v-4H6V9H5V8H4V6H3V4h1V2h1V1z"/>
+      <path fill="#c00000" d="M7 2h2v1h1v1h1v2h-1v2H9v1H8v1H7V9H6V8H5V6H4V4h1V3h1V2z"/>
+      <path fill="#fff" d="M7 4h2v2H7z"/>
+    </symbol>
+    <symbol id="i-led" viewBox="0 0 16 16">
+      <circle cx="8" cy="8" r="5" fill="#000"/>
+      <circle cx="8" cy="8" r="3" fill="#00ff00"/>
+      <circle cx="7" cy="7" r="1" fill="#fff"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div id="desktop">
+  <div id="app-window" class="window app-window">
+    <div class="title-bar" id="titlebar">
+      <div class="title-bar-text">
+        <svg class="title-icon"><use href="#i-sat"/></svg>
+        <span>GPS95 — 卫星导航</span>
+        <span class="title-sub" id="title-sub">uConsole / GP-02</span>
+        <span class="demo-badge" id="demo-badge">DEMO 演示</span>
+      </div>
+      <div class="title-bar-controls">
+        <button aria-label="Minimize" id="win-min" title="最小化"></button>
+        <button aria-label="Maximize" id="win-max" title="最大化"></button>
+        <button aria-label="Close" id="win-close" title="关闭"></button>
+      </div>
+    </div>
+
+    <div class="menu-bar" id="menubar">
+      <div class="menu-item" data-menu="file">文件(F)</div>
+      <div class="menu-item" data-menu="view">视图(V)</div>
+      <div class="menu-item" data-menu="tools">工具(T)</div>
+      <div class="menu-item" data-menu="help">帮助(H)</div>
+      <div class="menu-spacer"></div>
+      <div class="menu-clock" id="menu-clock">--:--:--</div>
+    </div>
+
+    <div class="toolbar">
+      <button class="tool-btn" id="btn-tool-follow" title="跟随当前位置 (C)"><svg><use href="#i-pin"/></svg><span>跟随</span></button>
+      <button class="tool-btn" id="btn-tool-trail" title="显示轨迹"><svg><use href="#i-map"/></svg><span>轨迹</span></button>
+      <button class="tool-btn" id="btn-tool-cache" title="缓存当前地图区域"><svg><use href="#i-cache"/></svg><span>缓存地图</span></button>
+      <button class="tool-btn" id="btn-tool-repair" title="恢复 GP-02 NMEA 配置并重启 gpsd"><svg><use href="#i-wrench"/></svg><span>修复 GPS</span></button>
+      <div class="toolbar-sep"></div>
+      <button class="tool-btn" id="btn-tool-settings" title="设置"><svg><use href="#i-gear"/></svg><span>设置</span></button>
+      <div class="toolbar-spacer"></div>
+      <div class="fix-badge" id="fix-badge"><span class="led" id="fix-led"></span><span id="fix-badge-text">正在启动…</span></div>
+    </div>
+
+    <div class="app-body">
+      <section class="map-panel">
+        <div class="panel-head map-head">
+          <span class="panel-title">地图</span>
+          <span class="panel-sub" id="map-sub">OpenStreetMap · 在线</span>
+          <div class="map-tools">
+            <button class="mini-btn" id="btn-zoom-out" title="缩小">−</button>
+            <button class="mini-btn" id="btn-zoom-in" title="放大">+</button>
+            <button class="mini-btn" id="btn-map-center" title="回到当前位置">◎</button>
+          </div>
+        </div>
+        <div id="map"></div>
+        <div class="map-overlay map-tl">
+          <div class="coord-line"><span class="coord-label">纬度</span><span id="ov-lat">--</span></div>
+          <div class="coord-line"><span class="coord-label">经度</span><span id="ov-lon">--</span></div>
+          <div class="coord-line"><span class="coord-label">精度</span><span id="ov-acc">--</span></div>
+        </div>
+        <div class="map-overlay map-br">
+          <span id="map-attrib">© Esri, HERE, Garmin, OSM contributors</span>
+          <span class="dot">·</span>
+          <span id="map-cache-state">缓存 --</span>
+        </div>
+        <div class="map-overlay map-bl" id="map-legend">
+          <span><i class="legend-circle c1"></i>1σ</span>
+          <span><i class="legend-circle c2"></i>95%</span>
+          <span><i class="legend-line"></i>轨迹</span>
+        </div>
+        <div class="map-lock" id="map-lock" title="取消跟随">
+          <span>跟随中</span><button id="btn-unfollow">×</button>
+        </div>
+      </section>
+
+      <aside class="right-col">
+        <section class="sat-panel" id="sat-panel">
+          <div class="panel-head">
+            <span class="panel-title">卫星</span>
+            <span class="panel-sub" id="sat-summary">-- 在视 / -- 参与</span>
+            <div class="tabs" id="sat-tabs">
+              <button class="tab active" data-tab="list">列表</button>
+              <button class="tab" data-tab="sky">天空图</button>
+              <button class="tab" data-tab="signal">信号</button>
+            </div>
+          </div>
+          <div class="sat-body">
+            <div class="tab-view active" id="view-list">
+              <div class="const-chips" id="const-chips"></div>
+              <div class="sat-table-wrap">
+                <table class="sat-table">
+                  <thead><tr>
+                    <th class="c-sys">系统</th><th class="c-prn">PRN</th><th class="c-series">系列</th><th class="c-el">仰角</th>
+                    <th class="c-az">方位</th><th class="c-snr">信噪比</th><th class="c-use">用</th>
+                  </tr></thead>
+                  <tbody id="sat-tbody"></tbody>
+                </table>
+                <div class="empty-state" id="sat-empty">正在等待卫星数据…</div>
+              </div>
+              <div class="sat-detail" id="sat-detail">点击卫星查看星座、系列与信号详情</div>
+            </div>
+            <div class="tab-view" id="view-sky">
+              <canvas id="sky-canvas" width="360" height="300"></canvas>
+              <div class="sky-legend" id="sky-legend"></div>
+            </div>
+            <div class="tab-view" id="view-signal">
+              <canvas id="signal-canvas" width="360" height="300"></canvas>
+            </div>
+          </div>
+        </section>
+
+        <section class="control-panel">
+          <div class="panel-head">
+            <span class="panel-title">导航数据</span>
+            <span class="panel-sub" id="control-sub">等待定位</span>
+            <span class="source-led" id="source-led" title="数据源状态">●</span>
+          </div>
+          <div class="nav-body">
+            <div class="coord-box">
+              <div class="coord-row"><span class="k">纬度</span><span class="v" id="v-lat">--</span></div>
+              <div class="coord-row"><span class="k">经度</span><span class="v" id="v-lon">--</span></div>
+              <div class="coord-row small"><span class="k">网格</span><span class="v" id="v-grid">--</span><button class="copy-btn" id="btn-copy-coord" title="复制坐标">复制</button></div>
+            </div>
+            <div class="metric-grid">
+              <div class="metric"><span class="mk">速度</span><span class="mv" id="v-speed">--</span><span class="mu">km/h</span></div>
+              <div class="metric"><span class="mk">海拔</span><span class="mv" id="v-alt">--</span><span class="mu">m</span></div>
+              <div class="metric"><span class="mk">航向</span><span class="mv" id="v-course">--</span><span class="mu">°</span></div>
+              <div class="metric"><span class="mk">HDOP</span><span class="mv" id="v-hdop">--</span><span class="mu"></span></div>
+            </div>
+            <div class="acc-row">
+              <span class="k">定位精度</span>
+              <div class="acc-bar"><div class="acc-fill" id="acc-fill"></div></div>
+              <span class="v" id="v-acc">--</span>
+            </div>
+            <div class="source-row">
+              <span class="k">数据源</span>
+              <span id="v-source">--</span>
+              <span class="sep">|</span>
+              <span id="v-sats">卫星 --</span>
+              <span class="sep">|</span>
+              <span id="v-time">--:--:--</span>
+            </div>
+            <div class="button-grid">
+              <button id="btn-follow">跟随</button>
+              <button id="btn-trail">轨迹</button>
+              <button id="btn-offline">离线地图</button>
+              <button id="btn-prefetch">缓存区域</button>
+              <button id="btn-repair">修复 GPS</button>
+              <button id="btn-diagnostics">诊断</button>
+            </div>
+          </div>
+        </section>
+      </aside>
+    </div>
+
+    <div class="status-bar">
+      <div class="status-field" id="status-source"><span class="led small" id="status-led"></span> 数据源: --</div>
+      <div class="status-field" id="status-fix">定位: --</div>
+      <div class="status-field" id="status-sats">卫星: --</div>
+      <div class="status-field" id="status-cache">缓存: --</div>
+      <div class="status-field grow" id="status-message">就绪</div>
+      <div class="status-field" id="status-clock">--:--:--</div>
+    </div>
+  </div>
+</div>
+
+<div id="menu-layer"></div>
+<div id="modal-layer"></div>
+<div id="toast-layer"></div>
+
+<script src="/static/vendor/leaflet/leaflet.js"></script>
+<script src="/static/js/app.js"></script>
+</body>
+</html>

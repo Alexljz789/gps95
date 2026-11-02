@@ -1,0 +1,22 @@
+[Unit]
+Description=GPS95 NMEA bridge for uConsole AIO v2 GP-02
+Documentation=file:/opt/gps95/README.md
+After=network.target
+Before=gpsd.service
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/gps95
+Environment=PYTHONUNBUFFERED=1
+Environment=GPS95_RUN=/run/gps95
+Environment=GPS95_LOG=/var/log/gps95
+Environment=GPS95_SERIAL=/dev/serial0
+Environment=GPS95_BAUD=9600
+Environment=GPS95_GNSS_MODE=7
+ExecStart=/usr/bin/python3 -m app.bridge
+Restart=always
+RestartSec=3
+TimeoutStopSec=8
+
+[Install]
+WantedBy=multi-user.target

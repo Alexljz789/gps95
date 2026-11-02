@@ -1,0 +1,40 @@
+#!/bin/bash
+# Launch the GPS95 kiosk on the uConsole's XFCE session.
+set -u
+export DISPLAY="${DISPLAY:-:0}"
+export XAUTHORITY="${XAUTHORITY:-/home/alex/.Xauthority}"
+
+URL="${GPS95_URL:-http://127.0.0.1:8765}"
+for _ in $(seq 1 80); do
+  if curl -sf --max-time 1 "$URL/api/health" >/dev/null 2>&1; then
+    break
+  fi
+  sleep 0.25
+done
+
+pkill -x gcr-prompter 2>/dev/null || true
+
+PROFILE="/home/alex/.config/gps95-chromium"
+mkdir -p "$PROFILE"
+
+exec chromium \
+  --kiosk \
+  --start-fullscreen \
+  --window-position=0,0 \
+  --window-size=1280,720 \
+  --lang=zh-CN \
+  --user-data-dir="$PROFILE" \
+  --no-first-run \
+  --no-default-browser-check \
+  --disable-infobars \
+  --disable-session-crashed-bubble \
+  --disable-translate \
+  --disable-features=Translate,TranslateUI,LanguageDetection,TranslateRanker \
+  --password-store=basic \
+  --use-mock-keyring \
+  --noerrdialogs \
+  --overscroll-history-navigation=0 \
+  --autoplay-policy=no-user-gesture-required \
+  --force-device-scale-factor=1 \
+  --check-for-update-interval=31536000 \
+  "$URL"

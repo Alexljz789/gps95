@@ -1,0 +1,21 @@
+[Unit]
+Description=GPS95 web UI and map cache
+Documentation=file:/opt/gps95/README.md
+After=network.target gps95-gpsbridge.service gpsd.service
+Wants=gps95-gpsbridge.service gpsd.service
+
+[Service]
+Type=simple
+User=alex
+Group=alex
+SupplementaryGroups=dialout
+WorkingDirectory=/opt/gps95
+Environment=PYTHONUNBUFFERED=1
+Environment=GPS95_CONFIG=/var/lib/gps95/config.json
+ExecStart=/usr/bin/python3 -m app.main --host 127.0.0.1 --port 8765
+Restart=always
+RestartSec=3
+TimeoutStopSec=8
+
+[Install]
+WantedBy=multi-user.target

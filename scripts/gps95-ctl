@@ -1,0 +1,43 @@
+#!/bin/bash
+# GPS95 privileged control helper.  Only these narrow actions are callable
+# through the sudoers entry installed by GPS95.
+set -u
+
+case "${1:-}" in
+  restart-bridge)
+    exec systemctl restart gps95-gpsbridge.service
+    ;;
+  restart-gpsd)
+    exec systemctl restart gpsd.service
+    ;;
+  stop-gpsd)
+    systemctl stop gpsd.socket 2>/dev/null || true
+    systemctl stop gpsd.service 2>/dev/null || true
+    ;;
+  start-gpsd)
+    systemctl start gpsd.socket 2>/dev/null || true
+    systemctl start gpsd.service 2>/dev/null || true
+    ;;
+  restart-all)
+    systemctl restart gps95-gpsbridge.service
+    sleep 2
+    systemctl restart gpsd.service
+    ;;
+  powercycle-gps)
+    # AIO v2 GPS rail enable is GPIO 27.  Keep the low phase short.
+    pinctrl 27 op 2>/dev/null || true
+    pinctrl 27 dl 2>/dev/null || true
+    sleep 2
+    pinctrl 27 dh 2>/dev/null || true
+    ;;
+  status)
+    echo "bridge=$(systemctl is-active gps95-gpsbridge.service 2>/dev/null)"
+    echo "gpsd=$(systemctl is-active gpsd.service 2>/dev/null)"
+    echo "web=$(systemctl is-active gps95-web.service 2>/dev/null)"
+    echo "pty=$(readlink -f /run/gps95/nmea 2>/dev/null)"
+    ;;
+  *)
+    echo "usage: gps95-ctl {restart-bridge|restart-gpsd|stop-gpsd|start-gpsd|restart-all|powercycle-gps|status}" >&2
+    exit 2
+    ;;
+esac
