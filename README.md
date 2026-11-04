@@ -8,8 +8,7 @@ hardware bridge that fixes the well-known GP-02 ↔ gpsd problem.
 
 **中文简介：[README.zh-CN.md](README.zh-CN.md)**
 
-> 隐私说明：本仓库不包含设备实际位置、实景截图或真实坐标。演示模式使用
-> 伦敦作为通用示例位置，仅用于地图初始化。
+> 隐私说明：本仓库不包含设备实际位置、实景截图或真实坐标。演示模式使用伦敦作为通用示例位置，仅用于地图初始化。
 >
 > **Privacy note:** this repository contains no real device location,
 > location screenshot or real coordinates. The demo feed uses London as a
