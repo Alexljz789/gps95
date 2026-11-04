@@ -14,6 +14,10 @@ hardware bridge that fixes the well-known GP-02 ↔ gpsd problem.
 > location screenshot or real coordinates. The demo feed uses London as a
 > generic starting point for map initialisation only.
 
+> Notice:
+> This is an app with a Chinese UI, sorry, our non-chinese friends :(
+> But you can always use a translator, there's not very much words there.
+
 ## Why this exists
 
 The GP-02 inside the AIO v2 is not a genuine u-blox receiver.  It understands
